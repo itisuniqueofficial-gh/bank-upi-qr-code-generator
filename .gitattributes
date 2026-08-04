@@ -1,0 +1,13 @@
+# Normalize line endings to LF for all text files
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff2 binary
+
+# Markdown diff support
+*.md diff=markdown

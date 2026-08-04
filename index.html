@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>UPI QR Code Generator — Free UPI Payment QR</title>
+    <meta
+      name="description"
+      content="Generate a scannable UPI payment QR code from your account number and IFSC. Download PNG or SVG, copy the UPI URI, print it, and use it offline. Free, private, no sign-up."
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta property="og:title" content="UPI QR Code Generator" />
+    <meta
+      property="og:description"
+      content="Create a UPI payment QR from account number and IFSC. Download PNG/SVG, copy the UPI URI, and print. Runs entirely in your browser."
+    />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/variables.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/forms.css" />
+    <link rel="stylesheet" href="css/utilities.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/qr.css" />
+    <script type="module" src="./js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <a class="brand" href="./" aria-label="UPI QR home">
+          <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="2" y="2" width="8" height="8" rx="1" />
+            <rect x="14" y="2" width="8" height="8" rx="1" />
+            <rect x="2" y="14" width="8" height="8" rx="1" />
+            <rect x="11" y="11" width="10" height="11" rx="1" />
+          </svg>
+          <span class="brand-name">UPI QR</span>
+        </a>
+        <label class="theme-field">
+          <span class="sr-only">Theme</span>
+          <svg class="theme-icon" viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M8 1.5v13M8 1.5L5.5 4M8 1.5L10.5 4" />
+            <path d="M1.5 8h13M1.5 8L4 5.5M1.5 8L4 10.5M14.5 8L12 5.5M14.5 8L12 10.5" />
+          </svg>
+          <select id="theme-select">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <main id="main">
+      <div class="wrap">
+        <section class="hero">
+          <h1>Generate a UPI payment QR code</h1>
+          <p class="lead">
+            Enter your account number and IFSC to create a scannable QR code. Everything runs locally in your browser —
+            your bank details never leave this device.
+          </p>
+        </section>
+
+        <section class="main-layout" aria-label="QR generator">
+          <div class="card form-card">
+            <h2 class="card-title">Account details</h2>
+            <form id="upi-form" novalidate>
+              <div class="field">
+                <label class="field-label" for="field-name">Name</label>
+                <input
+                  id="field-name"
+                  name="name"
+                  type="text"
+                  maxlength="80"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="e.g. Priya Sharma"
+                  class="field-input"
+                  required
+                />
+                <small class="field-hint">As shown on your bank account.</small>
+                <p id="field-name-error" class="field-error" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="field-account">Account number</label>
+                <input
+                  id="field-account"
+                  name="account"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="20"
+                  autocomplete="off"
+                  placeholder="e.g. 123456789012"
+                  class="field-input"
+                  required
+                />
+                <small class="field-hint">6–20 digits.</small>
+                <p id="field-account-error" class="field-error" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="field-confirm">Confirm account number</label>
+                <input
+                  id="field-confirm"
+                  name="confirm"
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="20"
+                  autocomplete="off"
+                  placeholder="Repeat the account number"
+                  class="field-input"
+                  required
+                />
+                <p id="field-confirm-error" class="field-error" role="alert"></p>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="field-ifsc">IFSC code</label>
+                <input
+                  id="field-ifsc"
+                  name="ifsc"
+                  type="text"
+                  maxlength="11"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="e.g. SBIN0001234"
+                  class="field-input"
+                  required
+                />
+                <small class="field-hint">Auto-capitalised. 4 letters, 0, then 6 characters.</small>
+                <p id="field-ifsc-error" class="field-error" role="alert"></p>
+              </div>
+
+              <div class="field-grid-2">
+                <div class="field">
+                  <label class="field-label" for="field-amount"> Amount <span class="muted">(optional)</span> </label>
+                  <input
+                    id="field-amount"
+                    name="amount"
+                    type="text"
+                    inputmode="decimal"
+                    maxlength="10"
+                    autocomplete="off"
+                    placeholder="e.g. 250.00"
+                    class="field-input"
+                  />
+                  <small class="field-hint">Leave empty for a fixed-amount-free QR.</small>
+                  <p id="field-amount-error" class="field-error" role="alert"></p>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="field-note"> Note <span class="muted">(optional)</span> </label>
+                  <input
+                    id="field-note"
+                    name="note"
+                    type="text"
+                    maxlength="80"
+                    autocomplete="off"
+                    placeholder="e.g. Rent for July"
+                    class="field-input"
+                  />
+                  <p id="field-note-error" class="field-error" role="alert"></p>
+                </div>
+              </div>
+
+              <div class="field-actions">
+                <button id="generate-btn" type="submit" class="btn btn-primary">Generate QR code</button>
+                <button id="reset-btn" type="button" class="btn">Reset</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card preview-card">
+            <h2 class="card-title">QR preview</h2>
+            <div id="preview-wrap" class="preview-wrap empty">
+              <canvas
+                id="preview-canvas"
+                width="0"
+                height="0"
+                class="preview-canvas"
+                role="img"
+                aria-label="UPI payment QR code preview"
+              ></canvas>
+              <p id="preview-status" class="preview-status" role="status">
+                Fill in the highlighted fields to preview your QR code.
+              </p>
+            </div>
+
+            <div class="preview-controls">
+              <label class="size-field">
+                <span>Image size</span>
+                <select id="size-select">
+                  <option value="192">192 × 192</option>
+                  <option value="288" selected>288 × 288</option>
+                  <option value="384">384 × 384</option>
+                  <option value="512">512 × 512</option>
+                  <option value="768">768 × 768</option>
+                  <option value="1024">1024 × 1024</option>
+                </select>
+              </label>
+              <p id="version-info" class="version-info" aria-live="polite"></p>
+            </div>
+
+            <div class="raw-block">
+              <label class="raw-label" for="raw-uri">UPI URI</label>
+              <textarea
+                id="raw-uri"
+                class="raw-uri"
+                rows="3"
+                readonly
+                spellcheck="false"
+                aria-label="UPI payment URI"
+              ></textarea>
+              <button id="copy-raw" type="button" class="btn" disabled>Copy raw URI</button>
+            </div>
+
+            <div class="preview-actions">
+              <button id="download-png" type="button" class="btn btn-primary" disabled>Download PNG</button>
+              <button id="download-svg" type="button" class="btn" disabled>Download SVG</button>
+              <button id="copy-uri" type="button" class="btn" disabled>Copy UPI URI</button>
+              <button id="copy-txt" type="button" class="btn" disabled>Copy summary</button>
+              <button id="copy-json" type="button" class="btn" disabled>Copy JSON</button>
+              <button id="open-upi" type="button" class="btn" disabled>Open UPI app</button>
+              <button id="share-btn" type="button" class="btn" disabled>Share</button>
+              <button id="fullscreen-btn" type="button" class="btn" disabled>Fullscreen</button>
+              <button id="regenerate-btn" type="button" class="btn" disabled>Regenerate</button>
+              <button id="print-qr" type="button" class="btn" disabled>Print</button>
+            </div>
+
+            <details id="shortcuts-help" class="shortcuts-help">
+              <summary>Keyboard shortcuts</summary>
+              <table>
+                <tbody>
+                  <tr>
+                    <td>Generate QR code</td>
+                    <td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Download PNG</td>
+                    <td><kbd>Ctrl</kbd> + <kbd>D</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Download SVG</td>
+                    <td><kbd>Ctrl</kbd> + <kbd>S</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Print</td>
+                    <td><kbd>Ctrl</kbd> + <kbd>P</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Fullscreen preview</td>
+                    <td><kbd>F</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Close fullscreen</td>
+                    <td><kbd>Esc</kbd></td>
+                  </tr>
+                  <tr>
+                    <td>Toggle shortcuts</td>
+                    <td><kbd>?</kbd></td>
+                  </tr>
+                </tbody>
+              </table>
+            </details>
+
+            <div id="offline-notice" class="offline-notice" hidden>
+              <p>You're offline. The generator still works — your details never leave this device.</p>
+            </div>
+
+            <div id="print-summary" class="print-summary" aria-hidden="true">
+              <strong>UPI payment details</strong>
+              <span id="print-name"></span>
+              <span id="print-account"></span>
+              <span id="print-amount"></span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card note" aria-label="How it works">
+          <h2 class="card-title">How it works</h2>
+          <p>
+            The QR code encodes a UPI deep link like
+            <code>upi://pay?pa=…&amp;pn=…&amp;am=…&amp;cu=INR</code>. Scan it with any UPI app such as Google Pay,
+            PhonePe, or Paytm to open the payment screen. Use the account IFSC code from your bank statement or net
+            banking.
+          </p>
+          <p>
+            All processing happens in your browser. Nothing is uploaded, tracked, or stored on a server. The app also
+            works offline once loaded.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <p>UPI QR Code Generator — a free, private, offline tool.</p>
+        <p class="muted">
+          QR code generation uses the MIT-licensed
+          <a href="https://github.com/kazuhikoarase/qrcode-generator" target="_blank" rel="noopener noreferrer"
+            >qrcode-generator</a
+          >.
+        </p>
+      </div>
+    </footer>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="fullscreen-overlay" class="fullscreen-overlay" hidden>
+      <canvas id="fullscreen-canvas" class="fullscreen-canvas" role="img" aria-label="UPI payment QR code"></canvas>
+      <div class="fullscreen-actions">
+        <button id="fullscreen-close" type="button" class="btn">Close</button>
+      </div>
+      <p class="fullscreen-hint">Press <kbd>Esc</kbd> or click outside to close.</p>
+    </div>
+  </body>
+</html>

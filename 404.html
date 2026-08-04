@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 — Page not found | UPI Bank QR Code Generator</title>
+    <meta
+      name="description"
+      content="The page you are looking for could not be found. Return to the UPI QR Code Generator."
+    />
+    <link rel="canonical" href="https://upiqr.example.com/" />
+    <style>
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #1a1a1a;
+        --color-muted: #666666;
+        --color-accent: #7c3aed;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #0f1115;
+          --color-text: #e6e6e6;
+          --color-muted: #9a9a9a;
+          --color-accent: #a78bfa;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        text-align: center;
+        padding: 2rem;
+      }
+      .code {
+        font-size: clamp(4rem, 12vw, 7rem);
+        font-weight: 800;
+        color: var(--color-accent);
+        margin: 0;
+        line-height: 1;
+      }
+      h1 {
+        font-size: clamp(1.25rem, 4vw, 1.75rem);
+        margin: 0.75rem 0 0.5rem;
+      }
+      p {
+        color: var(--color-muted);
+        max-width: 36ch;
+        margin: 0 auto 2rem;
+      }
+      a {
+        display: inline-block;
+        background: var(--color-accent);
+        color: #ffffff;
+        text-decoration: none;
+        padding: 0.7rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      a:hover,
+      a:focus-visible {
+        filter: brightness(1.1);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="code">404</p>
+      <h1>Page not found</h1>
+      <p>The page you are looking for doesn't exist or has been moved. Let's get you back to generating QR codes.</p>
+      <a href="/">Go to the QR generator</a>
+    </main>
+  </body>
+</html>

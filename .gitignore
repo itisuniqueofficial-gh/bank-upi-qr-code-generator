@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Local dev artifacts (SQLite leftovers)
+database.db
+database.db-shm
+database.db-wal
+
+# Playwright MCP scratch artifacts
+.playwright-mcp/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

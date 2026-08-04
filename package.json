@@ -1,0 +1,42 @@
+{
+  "name": "upi-bank-qr-code-generator",
+  "version": "1.0.0",
+  "description": "Generate, download, copy, and print UPI QR codes for your bank account — 100% offline, dependency-free, and privacy-first.",
+  "keywords": [
+    "upi",
+    "qr-code",
+    "qr-generator",
+    "upi-qr",
+    "bank",
+    "ifsc",
+    "vpa",
+    "payments",
+    "india",
+    "npci"
+  ],
+  "license": "MIT",
+  "private": true,
+  "homepage": "https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/issues"
+  },
+  "scripts": {
+    "lint": "npm run lint:js && npm run lint:format && npm run lint:html",
+    "lint:js": "for f in js/*.js; do node --check \"$f\"; done",
+    "lint:format": "prettier --check \"**/*.{html,css,js,json,md}\"",
+    "lint:html": "html-validate index.html 404.html",
+    "format": "prettier --write \"**/*.{html,css,js,json,md}\"",
+    "serve": "npx --yes serve ."
+  },
+  "devDependencies": {
+    "html-validate": "^9.0.0",
+    "prettier": "^3.3.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

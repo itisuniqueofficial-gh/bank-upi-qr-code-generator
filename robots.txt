@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Block search crawlers from indexing the QR history/state fragments
+Disallow: /#*
+
+# Sitemap
+Sitemap: https://upiqr.example.com/sitemap.xml

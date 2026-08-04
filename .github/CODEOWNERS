@@ -1,0 +1,14 @@
+# Code owners
+
+# These owners will be automatically requested for review when
+# a pull request changes files they own.
+
+# Default owners for everything in the repo
+* @itisuniqueofficial-gh
+
+# PWA / service worker / manifest
+/sw.js @itisuniqueofficial-gh
+/manifest.webmanifest @itisuniqueofficial-gh
+
+# CI / workflows
+/.github/workflows/ @itisuniqueofficial-gh
