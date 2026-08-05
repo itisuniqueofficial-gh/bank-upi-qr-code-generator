@@ -8,14 +8,11 @@ import { generator } from './generator.js';
 import { config } from './config.js';
 import { storage } from './storage.js';
 
-const APP = {
-  name: 'UPI QR Code Generator',
-  version: '1.0.0',
-  home: 'https://upi-qr.pages.dev/',
-};
+const APP = config.APP;
 
 const LEVEL = config.ERROR_CORRECTION;
 const FIELDS = ['name', 'account', 'confirm', 'ifsc', 'amount', 'note'];
+const THEME_OPTIONS = ['system', 'light', 'dark', 'high-contrast'];
 
 const $ = (id) => document.getElementById(id);
 
@@ -58,10 +55,18 @@ export const initApp = () => {
   };
 
   let toastTimer = null;
-  const showToast = (message, tone = '') => {
-    toast.textContent = message;
-    toast.classList.remove('error');
-    if (tone === 'error') toast.classList.add('error');
+  const TOAST_ICONS = {
+    success: 'fa-circle-check',
+    error: 'fa-circle-exclamation',
+    info: 'fa-circle-info',
+  };
+
+  const showToast = (message, tone = 'info') => {
+    const icon = TOAST_ICONS[tone] || TOAST_ICONS.info;
+    toast.querySelector('.toast-text').textContent = message;
+    toast.querySelector('.toast-icon').className = `fa-solid ${icon} toast-icon`;
+    toast.classList.remove('success', 'error', 'info');
+    if (tone) toast.classList.add(tone);
     toast.classList.add('show');
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
@@ -96,12 +101,15 @@ export const initApp = () => {
   const setFieldError = (name, message) => {
     const input = getInput(name);
     const errorEl = getErrorEl(name);
+    const field = input.closest('.field');
     if (message) {
       input.setAttribute('aria-invalid', 'true');
+      if (field) field.classList.remove('is-valid');
       errorEl.textContent = message;
       errorEl.classList.add('show');
     } else {
       input.removeAttribute('aria-invalid');
+      if (field) field.classList.toggle('is-valid', input.value.trim() !== '');
       errorEl.textContent = '';
       errorEl.classList.remove('show');
     }
@@ -140,7 +148,7 @@ export const initApp = () => {
       return;
     }
     const n = state.qr.getModuleCount();
-    versionInfo.textContent = `Version ${state.qr.getVersion()} · ${n}×${n} modules · Error correction ${state.qr.getLevel()}`;
+    versionInfo.textContent = `Version ${state.qr.getVersion()} · ${n}×${n} modules · EC ${state.qr.getLevel()}`;
   };
 
   const renderPreview = () => {
@@ -232,7 +240,14 @@ export const initApp = () => {
     previewWrap.classList.add('animate');
   };
 
-  const onGenerate = () => {
+  const setGenerateLoading = (loading) => {
+    generateBtn.classList.toggle('is-loading', loading);
+    generateBtn.setAttribute('aria-busy', String(loading));
+    generateBtn.toggleAttribute('disabled', loading);
+    generateBtn.querySelector('.btn-label').textContent = loading ? 'Generating…' : 'Generate QR code';
+  };
+
+  const onGenerate = async () => {
     const data = getFormData();
     const result = validator.validateAll(data);
     if (!result.ok) {
@@ -245,8 +260,11 @@ export const initApp = () => {
       }
       return;
     }
+    setGenerateLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 350));
     renderPreview();
     animateGenerate();
+    setGenerateLoading(false);
     previewWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
@@ -268,7 +286,7 @@ export const initApp = () => {
     if (!state.valid || !state.qr) return;
     renderPreview();
     animateGenerate();
-    showToast('QR code regenerated');
+    showToast('QR code regenerated', 'success');
   };
 
   const onCopy = async (kind) => {
@@ -307,7 +325,7 @@ export const initApp = () => {
       label = 'JSON copied';
     }
     const ok = await clipboard.copyText(text);
-    showToast(ok ? label : 'Copy failed — select the text manually.', ok ? '' : 'error');
+    showToast(ok ? label : 'Copy failed — select the text manually.', ok ? 'success' : 'error');
   };
 
   const onDownloadPng = async () => {
@@ -318,7 +336,7 @@ export const initApp = () => {
       dark: '#000000',
       light: '#ffffff',
     });
-    showToast(ok ? 'PNG downloaded' : 'Download failed', ok ? '' : 'error');
+    showToast(ok ? 'PNG downloaded' : 'Download failed', ok ? 'success' : 'error');
   };
 
   const onDownloadSvg = () => {
@@ -328,7 +346,7 @@ export const initApp = () => {
       dark: '#000000',
       light: '#ffffff',
     });
-    showToast('SVG downloaded');
+    showToast('SVG downloaded', 'success');
   };
 
   const onPrint = () => {
@@ -344,7 +362,7 @@ export const initApp = () => {
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    showToast('Opening UPI app…');
+    showToast('Opening UPI app…', 'info');
   };
 
   const onShare = async () => {
@@ -354,14 +372,14 @@ export const initApp = () => {
     if (navigator.share) {
       try {
         await navigator.share({ title: APP.name, text });
-        showToast('Shared');
+        showToast('Shared', 'success');
         return;
       } catch (err) {
         if (err && err.name === 'AbortError') return;
       }
     }
     const ok = await clipboard.copyText(state.payload);
-    showToast(ok ? 'Sharing unavailable — UPI URI copied instead' : 'Sharing unavailable', ok ? '' : 'error');
+    showToast(ok ? 'Sharing unavailable — UPI URI copied instead' : 'Sharing unavailable', ok ? 'success' : 'error');
   };
 
   const openFullscreen = () => {
@@ -385,6 +403,14 @@ export const initApp = () => {
 
   const toggleShortcuts = () => {
     shortcutsHelp.open = !shortcutsHelp.open;
+  };
+
+  const closeNav = () => {
+    const nav = $('site-nav');
+    const toggle = $('nav-toggle');
+    if (!nav || !nav.classList.contains('is-open')) return;
+    nav.classList.remove('is-open');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false');
   };
 
   const isTyping = (el) => {
@@ -412,6 +438,10 @@ export const initApp = () => {
       return;
     }
     if (event.key === 'Escape') {
+      if ($('site-nav') && $('site-nav').classList.contains('is-open')) {
+        closeNav();
+        return;
+      }
       closeFullscreen();
       return;
     }
@@ -425,7 +455,7 @@ export const initApp = () => {
 
   const initTheme = () => {
     theme.init();
-    themeSelect.value = ['dark', 'light', 'system'].includes(theme.getStored()) ? theme.getStored() : 'system';
+    themeSelect.value = THEME_OPTIONS.includes(theme.getStored()) ? theme.getStored() : 'system';
     themeSelect.addEventListener('change', () => theme.set(themeSelect.value));
   };
 
@@ -436,6 +466,47 @@ export const initApp = () => {
     window.addEventListener('online', update);
     window.addEventListener('offline', update);
     update();
+  };
+
+  const initAbout = () => {
+    const dialog = $('about-dialog');
+    if (!dialog) return;
+    const open = () => {
+      if (typeof dialog.showModal === 'function') dialog.showModal();
+      else dialog.setAttribute('open', '');
+    };
+    const close = () => {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    };
+    document.querySelectorAll('[data-about-open]').forEach((el) => el.addEventListener('click', open));
+    document.querySelectorAll('[data-about-close]').forEach((el) => el.addEventListener('click', close));
+    const closeBtn = $('about-close');
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) close();
+    });
+  };
+
+  const initNav = () => {
+    const toggle = $('nav-toggle');
+    const nav = $('site-nav');
+    if (!toggle || !nav) return;
+    toggle.addEventListener('click', () => {
+      const open = !nav.classList.contains('is-open');
+      nav.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    nav.addEventListener('click', (event) => {
+      if (event.target.closest('a, button')) closeNav();
+    });
+  };
+
+  const initFooter = () => {
+    const year = $('footer-year');
+    if (year) year.textContent = new Date().getFullYear();
+    const version = $('app-version');
+    if (version) version.textContent = APP.version;
   };
 
   const registerServiceWorker = () => {
@@ -489,6 +560,9 @@ export const initApp = () => {
   restoreForm();
   initTheme();
   initConnectivity();
+  initAbout();
+  initNav();
+  initFooter();
   syncActions();
   renderPreviewDebounced();
   registerServiceWorker();

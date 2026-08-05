@@ -1,0 +1,7 @@
+.git
+node_modules
+database.db
+database.db-shm
+database.db-wal
+.playwright-mcp
+docs

@@ -1,5 +1,5 @@
 /* UPI QR Code Generator — service worker */
-const VERSION = 'v3';
+const VERSION = 'v5';
 
 const PRECACHE = [
   './',
@@ -25,6 +25,8 @@ const PRECACHE = [
   './icons/favicon.svg',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
 ];
 
 const CACHE_NAME = `upi-qr-${VERSION}`;
@@ -58,7 +60,7 @@ self.addEventListener('fetch', (event) => {
       if (cached) return cached;
       return fetch(request)
         .then((response) => {
-          if (response.ok && new URL(request.url).origin === self.location.origin) {
+          if (response.ok) {
             const copy = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           }

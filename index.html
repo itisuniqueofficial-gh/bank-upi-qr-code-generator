@@ -3,19 +3,33 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>UPI QR Code Generator — Free UPI Payment QR</title>
+    <title>UPI QR Code Generator — Free Bank QR Generator</title>
     <meta
       name="description"
-      content="Generate a scannable UPI payment QR code from your account number and IFSC. Download PNG or SVG, copy the UPI URI, print it, and use it offline. Free, private, no sign-up."
+      content="Generate a scannable UPI payment QR code from your bank account and IFSC. Download PNG or SVG, copy the UPI URI, print, and share. Free, private, offline, no sign-up."
     />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#1d4ed8" />
     <meta property="og:title" content="UPI QR Code Generator" />
     <meta
       property="og:description"
       content="Create a UPI payment QR from account number and IFSC. Download PNG/SVG, copy the UPI URI, and print. Runs entirely in your browser."
     />
     <meta property="og:type" content="website" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
     <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="stylesheet" href="css/reset.css" />
@@ -31,154 +45,243 @@
     <a class="skip-link" href="#main">Skip to content</a>
 
     <header class="site-header">
-      <div class="wrap header-inner">
-        <a class="brand" href="./" aria-label="UPI QR home">
-          <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="2" y="2" width="8" height="8" rx="1" />
-            <rect x="14" y="2" width="8" height="8" rx="1" />
-            <rect x="2" y="14" width="8" height="8" rx="1" />
-            <rect x="11" y="11" width="10" height="11" rx="1" />
-          </svg>
-          <span class="brand-name">UPI QR</span>
+      <div class="container header-inner">
+        <a class="brand" href="./" aria-label="UPI QR Code Generator home">
+          <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span>
+          <span class="brand-text">
+            <span class="brand-name">UPI QR</span>
+            <span class="brand-badge">Generator</span>
+          </span>
         </a>
-        <label class="theme-field">
-          <span class="sr-only">Theme</span>
-          <svg class="theme-icon" viewBox="0 0 16 16" aria-hidden="true">
-            <path d="M8 1.5v13M8 1.5L5.5 4M8 1.5L10.5 4" />
-            <path d="M1.5 8h13M1.5 8L4 5.5M1.5 8L4 10.5M14.5 8L12 5.5M14.5 8L12 10.5" />
-          </svg>
-          <select id="theme-select">
-            <option value="system">System</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
-        </label>
+
+        <nav id="site-nav" class="site-nav" aria-label="Primary">
+          <button type="button" class="nav-link" data-about-open>
+            About
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          </button>
+          <a
+            class="nav-link"
+            href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/blob/main/README.md"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Documentation
+            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+          </a>
+        </nav>
+
+        <div class="header-actions">
+          <a
+            class="btn btn-outline btn-sm btn-github"
+            href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+            <span>GitHub</span>
+          </a>
+          <label class="theme-field">
+            <span class="sr-only">Color theme</span>
+            <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>
+            <select id="theme-select">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="high-contrast">High contrast</option>
+            </select>
+          </label>
+          <button id="nav-toggle" type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            <span class="sr-only">Toggle navigation</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <main id="main">
-      <div class="wrap">
-        <section class="hero">
-          <h1>Generate a UPI payment QR code</h1>
+    <main id="main" class="main">
+      <div class="container">
+        <section class="hero" aria-labelledby="hero-title">
+          <p class="hero-eyebrow">UPI payments · Bank QR</p>
+          <h1 id="hero-title">Generate a UPI payment QR code</h1>
           <p class="lead">
-            Enter your account number and IFSC to create a scannable QR code. Everything runs locally in your browser —
-            your bank details never leave this device.
+            Enter your bank account details to create a scannable payment QR code. Everything runs locally in your
+            browser — your details never leave this device.
           </p>
         </section>
 
-        <section class="main-layout" aria-label="QR generator">
+        <section class="app-shell" aria-label="QR generator">
           <div class="card form-card">
-            <h2 class="card-title">Account details</h2>
+            <div class="card-head">
+              <i class="fa-solid fa-address-card" aria-hidden="true"></i>
+              <div>
+                <h2 class="card-title">Account details</h2>
+                <p class="card-desc">Enter the account details used to build the UPI payment address.</p>
+              </div>
+            </div>
+
             <form id="upi-form" novalidate>
-              <div class="field">
-                <label class="field-label" for="field-name">Name</label>
-                <input
-                  id="field-name"
-                  name="name"
-                  type="text"
-                  maxlength="80"
-                  autocomplete="off"
-                  spellcheck="false"
-                  placeholder="e.g. Priya Sharma"
-                  class="field-input"
-                  required
-                />
-                <small class="field-hint">As shown on your bank account.</small>
-                <p id="field-name-error" class="field-error" role="alert"></p>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="field-account">Account number</label>
-                <input
-                  id="field-account"
-                  name="account"
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="20"
-                  autocomplete="off"
-                  placeholder="e.g. 123456789012"
-                  class="field-input"
-                  required
-                />
-                <small class="field-hint">6–20 digits.</small>
-                <p id="field-account-error" class="field-error" role="alert"></p>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="field-confirm">Confirm account number</label>
-                <input
-                  id="field-confirm"
-                  name="confirm"
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="20"
-                  autocomplete="off"
-                  placeholder="Repeat the account number"
-                  class="field-input"
-                  required
-                />
-                <p id="field-confirm-error" class="field-error" role="alert"></p>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="field-ifsc">IFSC code</label>
-                <input
-                  id="field-ifsc"
-                  name="ifsc"
-                  type="text"
-                  maxlength="11"
-                  autocomplete="off"
-                  spellcheck="false"
-                  placeholder="e.g. SBIN0001234"
-                  class="field-input"
-                  required
-                />
-                <small class="field-hint">Auto-capitalised. 4 letters, 0, then 6 characters.</small>
-                <p id="field-ifsc-error" class="field-error" role="alert"></p>
-              </div>
-
-              <div class="field-grid-2">
-                <div class="field">
-                  <label class="field-label" for="field-amount"> Amount <span class="muted">(optional)</span> </label>
+              <div class="field" id="field-name-wrap">
+                <label class="field-label" for="field-name"
+                  >Name <span class="field-required" aria-hidden="true">*</span></label
+                >
+                <div class="field-control">
                   <input
-                    id="field-amount"
-                    name="amount"
-                    type="text"
-                    inputmode="decimal"
-                    maxlength="10"
-                    autocomplete="off"
-                    placeholder="e.g. 250.00"
-                    class="field-input"
-                  />
-                  <small class="field-hint">Leave empty for a fixed-amount-free QR.</small>
-                  <p id="field-amount-error" class="field-error" role="alert"></p>
-                </div>
-
-                <div class="field">
-                  <label class="field-label" for="field-note"> Note <span class="muted">(optional)</span> </label>
-                  <input
-                    id="field-note"
-                    name="note"
+                    id="field-name"
+                    name="name"
                     type="text"
                     maxlength="80"
                     autocomplete="off"
-                    placeholder="e.g. Rent for July"
+                    spellcheck="false"
+                    placeholder="e.g. Priya Sharma"
                     class="field-input"
+                    required
                   />
-                  <p id="field-note-error" class="field-error" role="alert"></p>
+                  <i class="fa-solid fa-circle-check field-check" aria-hidden="true"></i>
+                </div>
+                <small class="field-hint">As shown on your bank account.</small>
+                <p id="field-name-error" class="field-error" role="alert">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                </p>
+              </div>
+
+              <div class="field" id="field-account-wrap">
+                <label class="field-label" for="field-account"
+                  >Account number <span class="field-required" aria-hidden="true">*</span></label
+                >
+                <div class="field-control">
+                  <input
+                    id="field-account"
+                    name="account"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="20"
+                    autocomplete="off"
+                    placeholder="e.g. 123456789012"
+                    class="field-input"
+                    required
+                  />
+                  <i class="fa-solid fa-circle-check field-check" aria-hidden="true"></i>
+                </div>
+                <small class="field-hint">6–20 digits.</small>
+                <p id="field-account-error" class="field-error" role="alert">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                </p>
+              </div>
+
+              <div class="field" id="field-confirm-wrap">
+                <label class="field-label" for="field-confirm"
+                  >Confirm account number <span class="field-required" aria-hidden="true">*</span></label
+                >
+                <div class="field-control">
+                  <input
+                    id="field-confirm"
+                    name="confirm"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="20"
+                    autocomplete="off"
+                    placeholder="Repeat the account number"
+                    class="field-input"
+                    required
+                  />
+                  <i class="fa-solid fa-circle-check field-check" aria-hidden="true"></i>
+                </div>
+                <p id="field-confirm-error" class="field-error" role="alert">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                </p>
+              </div>
+
+              <div class="field" id="field-ifsc-wrap">
+                <label class="field-label" for="field-ifsc"
+                  >IFSC code <span class="field-required" aria-hidden="true">*</span></label
+                >
+                <div class="field-control">
+                  <input
+                    id="field-ifsc"
+                    name="ifsc"
+                    type="text"
+                    maxlength="11"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="e.g. SBIN0001234"
+                    class="field-input"
+                    required
+                  />
+                  <i class="fa-solid fa-circle-check field-check" aria-hidden="true"></i>
+                </div>
+                <small class="field-hint">Auto-capitalised. 4 letters, 0, then 6 characters.</small>
+                <p id="field-ifsc-error" class="field-error" role="alert">
+                  <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                </p>
+              </div>
+
+              <div class="field-grid-2">
+                <div class="field" id="field-amount-wrap">
+                  <label class="field-label" for="field-amount">Amount <span class="muted">(optional)</span></label>
+                  <div class="field-control">
+                    <input
+                      id="field-amount"
+                      name="amount"
+                      type="text"
+                      inputmode="decimal"
+                      maxlength="10"
+                      autocomplete="off"
+                      placeholder="e.g. 250.00"
+                      class="field-input"
+                    />
+                    <i class="fa-solid fa-circle-check field-check" aria-hidden="true"></i>
+                  </div>
+                  <small class="field-hint">Leave empty for a fixed-amount-free QR.</small>
+                  <p id="field-amount-error" class="field-error" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  </p>
+                </div>
+
+                <div class="field" id="field-note-wrap">
+                  <label class="field-label" for="field-note">Note <span class="muted">(optional)</span></label>
+                  <div class="field-control">
+                    <input
+                      id="field-note"
+                      name="note"
+                      type="text"
+                      maxlength="80"
+                      autocomplete="off"
+                      placeholder="e.g. Rent for July"
+                      class="field-input"
+                    />
+                    <i class="fa-solid fa-circle-check field-check" aria-hidden="true"></i>
+                  </div>
+                  <p id="field-note-error" class="field-error" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                  </p>
                 </div>
               </div>
 
               <div class="field-actions">
-                <button id="generate-btn" type="submit" class="btn btn-primary">Generate QR code</button>
-                <button id="reset-btn" type="button" class="btn">Reset</button>
+                <button id="generate-btn" type="submit" class="btn btn-primary">
+                  <span class="btn-spinner" aria-hidden="true"></span>
+                  <i class="fa-solid fa-wand-magic-sparkles btn-icon-static" aria-hidden="true"></i>
+                  <span class="btn-label">Generate QR code</span>
+                </button>
+                <button id="reset-btn" type="button" class="btn btn-outline">
+                  <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+                  <span>Reset</span>
+                </button>
               </div>
             </form>
           </div>
 
           <div class="card preview-card">
-            <h2 class="card-title">QR preview</h2>
+            <div class="card-head">
+              <i class="fa-solid fa-qrcode" aria-hidden="true"></i>
+              <div>
+                <h2 class="card-title">QR preview</h2>
+                <p class="card-desc">Live preview — updates as you type.</p>
+              </div>
+            </div>
+
             <div id="preview-wrap" class="preview-wrap empty">
+              <div class="qr-skeleton" aria-hidden="true"></div>
               <canvas
                 id="preview-canvas"
                 width="0"
@@ -208,7 +311,10 @@
             </div>
 
             <div class="raw-block">
-              <label class="raw-label" for="raw-uri">UPI URI</label>
+              <label class="raw-label" for="raw-uri">
+                <i class="fa-solid fa-link" aria-hidden="true"></i>
+                UPI URI
+              </label>
               <textarea
                 id="raw-uri"
                 class="raw-uri"
@@ -217,24 +323,60 @@
                 spellcheck="false"
                 aria-label="UPI payment URI"
               ></textarea>
-              <button id="copy-raw" type="button" class="btn" disabled>Copy raw URI</button>
+              <button id="copy-raw" type="button" class="btn btn-outline" disabled>
+                <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                <span>Copy raw URI</span>
+              </button>
             </div>
 
             <div class="preview-actions">
-              <button id="download-png" type="button" class="btn btn-primary" disabled>Download PNG</button>
-              <button id="download-svg" type="button" class="btn" disabled>Download SVG</button>
-              <button id="copy-uri" type="button" class="btn" disabled>Copy UPI URI</button>
-              <button id="copy-txt" type="button" class="btn" disabled>Copy summary</button>
-              <button id="copy-json" type="button" class="btn" disabled>Copy JSON</button>
-              <button id="open-upi" type="button" class="btn" disabled>Open UPI app</button>
-              <button id="share-btn" type="button" class="btn" disabled>Share</button>
-              <button id="fullscreen-btn" type="button" class="btn" disabled>Fullscreen</button>
-              <button id="regenerate-btn" type="button" class="btn" disabled>Regenerate</button>
-              <button id="print-qr" type="button" class="btn" disabled>Print</button>
+              <button id="download-png" type="button" class="btn btn-primary" disabled>
+                <i class="fa-solid fa-download" aria-hidden="true"></i>
+                <span>Download PNG</span>
+              </button>
+              <button id="download-svg" type="button" class="btn" disabled>
+                <i class="fa-solid fa-code" aria-hidden="true"></i>
+                <span>Download SVG</span>
+              </button>
+              <button id="copy-uri" type="button" class="btn" disabled>
+                <i class="fa-solid fa-copy" aria-hidden="true"></i>
+                <span>Copy UPI URI</span>
+              </button>
+              <button id="open-upi" type="button" class="btn btn-success" disabled>
+                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
+                <span>Open UPI app</span>
+              </button>
+              <button id="print-qr" type="button" class="btn" disabled>
+                <i class="fa-solid fa-print" aria-hidden="true"></i>
+                <span>Print</span>
+              </button>
+              <button id="share-btn" type="button" class="btn" disabled>
+                <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+                <span>Share</span>
+              </button>
+              <button id="copy-txt" type="button" class="btn btn-outline" disabled>
+                <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                <span>Copy summary</span>
+              </button>
+              <button id="copy-json" type="button" class="btn btn-outline" disabled>
+                <i class="fa-solid fa-file-code" aria-hidden="true"></i>
+                <span>Copy JSON</span>
+              </button>
+              <button id="regenerate-btn" type="button" class="btn btn-outline" disabled>
+                <i class="fa-solid fa-arrows-rotate" aria-hidden="true"></i>
+                <span>Regenerate</span>
+              </button>
+              <button id="fullscreen-btn" type="button" class="btn btn-outline" disabled>
+                <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                <span>Fullscreen</span>
+              </button>
             </div>
 
             <details id="shortcuts-help" class="shortcuts-help">
-              <summary>Keyboard shortcuts</summary>
+              <summary>
+                <i class="fa-solid fa-keyboard" aria-hidden="true"></i>
+                Keyboard shortcuts
+              </summary>
               <table>
                 <tbody>
                   <tr>
@@ -270,6 +412,7 @@
             </details>
 
             <div id="offline-notice" class="offline-notice" hidden>
+              <i class="fa-solid fa-wifi" aria-hidden="true"></i>
               <p>You're offline. The generator still works — your details never leave this device.</p>
             </div>
 
@@ -282,8 +425,13 @@
           </div>
         </section>
 
-        <section class="card note" aria-label="How it works">
-          <h2 class="card-title">How it works</h2>
+        <section class="card info-section" aria-label="How it works">
+          <div class="card-head">
+            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+            <div>
+              <h2 class="card-title">How it works</h2>
+            </div>
+          </div>
           <p>
             The QR code encodes a UPI deep link like
             <code>upi://pay?pa=…&amp;pn=…&amp;am=…&amp;cu=INR</code>. Scan it with any UPI app such as Google Pay,
@@ -299,23 +447,157 @@
     </main>
 
     <footer class="site-footer">
-      <div class="wrap footer-inner">
-        <p>UPI QR Code Generator — a free, private, offline tool.</p>
-        <p class="muted">
-          QR code generation uses the MIT-licensed
-          <a href="https://github.com/kazuhikoarase/qrcode-generator" target="_blank" rel="noopener noreferrer"
-            >qrcode-generator</a
-          >.
-        </p>
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a class="brand" href="./" aria-label="UPI QR Code Generator home">
+              <span class="brand-mark" aria-hidden="true"><i class="fa-solid fa-qrcode"></i></span>
+              <span class="brand-text">
+                <span class="brand-name">UPI QR</span>
+                <span class="brand-badge">Generator</span>
+              </span>
+            </a>
+            <p class="footer-tagline">
+              A free, private, offline-first tool for generating UPI payment QR codes from your bank account details.
+            </p>
+          </div>
+
+          <nav class="footer-col" aria-label="Product">
+            <h3>Product</h3>
+            <button type="button" class="footer-link" data-about-open>About</button>
+            <a
+              href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/blob/main/README.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Documentation</a
+            >
+            <a
+              href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/blob/main/ROADMAP.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Roadmap</a
+            >
+          </nav>
+
+          <nav class="footer-col" aria-label="Community">
+            <h3>Community</h3>
+            <a
+              href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
+            <a
+              href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Issues</a
+            >
+            <a
+              href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/blob/main/CONTRIBUTING.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Contributing</a
+            >
+          </nav>
+
+          <nav class="footer-col" aria-label="Legal and contact">
+            <h3>Legal</h3>
+            <button type="button" class="footer-link" data-about-open>Privacy</button>
+            <button type="button" class="footer-link" data-about-open>Terms</button>
+            <a
+              href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/issues/new"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Contact</a
+            >
+            <a
+              href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener noreferrer"
+              >License</a
+            >
+          </nav>
+        </div>
+
+        <div class="footer-bottom">
+          <p>
+            © <span id="footer-year">2026</span> UPI QR Code Generator · v<span id="app-version">1.1.0</span> · MIT
+            License
+          </p>
+          <p>
+            Open source. QR generation uses the
+            <a href="https://github.com/kazuhikoarase/qrcode-generator" target="_blank" rel="noopener noreferrer"
+              >MIT-licensed qrcode-generator</a
+            >.
+          </p>
+          <p>
+            Hosted on
+            <a href="https://pages.cloudflare.com/" target="_blank" rel="noopener noreferrer">Cloudflare Pages</a>
+            · UPI by
+            <a href="https://www.npci.org.in/what-we-do/upi/" target="_blank" rel="noopener noreferrer">NPCI</a>
+          </p>
+        </div>
       </div>
     </footer>
 
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <dialog id="about-dialog" class="about-dialog" aria-labelledby="about-title">
+      <div class="dialog-head">
+        <h2 id="about-title">About UPI QR Code Generator</h2>
+        <button id="about-close" type="button" class="dialog-close" aria-label="Close dialog">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="dialog-body">
+        <h3>About</h3>
+        <p>
+          UPI QR Code Generator builds a scannable <code>upi://pay</code> QR code from your bank account number and IFSC
+          code. It is free, open source, and runs 100% in your browser.
+        </p>
+
+        <h3>Privacy</h3>
+        <p>
+          Your bank details are processed locally on this device. Nothing you type is uploaded, tracked, or stored on a
+          server. Form values are saved only in your browser's local storage so you can resume later, and are cleared
+          when you press Reset.
+        </p>
+
+        <h3>Terms</h3>
+        <p>
+          This tool is provided "as is" without warranty of any kind. You are responsible for verifying that the
+          generated QR codes and UPI payment addresses match your intended recipient before sharing or printing them.
+        </p>
+
+        <div class="dialog-actions">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/itisuniqueofficial-gh/bank-upi-qr-code-generator"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="fa-brands fa-github" aria-hidden="true"></i>
+            <span>View on GitHub</span>
+          </a>
+          <button type="button" class="btn btn-outline" data-about-close>
+            <i class="fa-solid fa-rotate-left" aria-hidden="true"></i>
+            <span>Close</span>
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite">
+      <i class="fa-solid fa-circle-check toast-icon" aria-hidden="true"></i>
+      <span class="toast-text"></span>
+    </div>
 
     <div id="fullscreen-overlay" class="fullscreen-overlay" hidden>
       <canvas id="fullscreen-canvas" class="fullscreen-canvas" role="img" aria-label="UPI payment QR code"></canvas>
       <div class="fullscreen-actions">
-        <button id="fullscreen-close" type="button" class="btn">Close</button>
+        <button id="fullscreen-close" type="button" class="btn">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          <span>Close</span>
+        </button>
       </div>
       <p class="fullscreen-hint">Press <kbd>Esc</kbd> or click outside to close.</p>
     </div>

@@ -1,4 +1,4 @@
-/* UPI QR Code Generator — utility classes */
+/* UPI QR Code Generator — utilities */
 
 .sr-only {
   position: absolute;
@@ -14,18 +14,18 @@
 
 .skip-link {
   position: absolute;
-  left: var(--space-1);
+  left: var(--space-4);
   top: -48px;
   z-index: 50;
-  padding: 8px 16px;
+  padding: var(--space-3) var(--space-4);
   background: var(--primary);
   color: var(--primary-ink);
   font-weight: 600;
-  transition: top 0.15s ease;
+  transition: top var(--t-fast);
 }
 
 .skip-link:focus {
-  top: var(--space-1);
+  top: var(--space-4);
 }
 
 .skip-link:hover {
@@ -40,32 +40,133 @@
   text-align: center;
 }
 
+/* ---------- toast ---------- */
+
 .toast {
   position: fixed;
   left: 50%;
-  bottom: var(--space-3);
-  transform: translateX(-50%) translateY(200%);
+  bottom: var(--space-6);
   z-index: 60;
-  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: min(90vw, 520px);
+  padding: var(--space-3) var(--space-5);
   background: var(--ink);
   color: var(--bg);
-  border-radius: var(--radius);
   font-size: var(--text-sm);
   font-weight: 600;
   opacity: 0;
-  transition:
-    transform 0.2s ease,
-    opacity 0.2s ease;
+  transform: translate(-50%, 200%);
   pointer-events: none;
-  max-width: min(90vw, 480px);
+  transition:
+    transform var(--t-med),
+    opacity var(--t-med);
 }
 
 .toast.show {
-  transform: translateX(-50%) translateY(0);
   opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast.success {
+  background: var(--success);
+  color: var(--success-ink);
 }
 
 .toast.error {
   background: var(--danger);
-  color: #ffffff;
+  color: var(--danger-ink);
+}
+
+.toast.info {
+  background: var(--info);
+  color: var(--info-soft);
+}
+
+/* ---------- dialog ---------- */
+
+.about-dialog {
+  width: min(600px, calc(100vw - var(--space-7)));
+  max-height: 85vh;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.about-dialog::backdrop {
+  background: rgba(4, 8, 14, 0.6);
+}
+
+.dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border);
+}
+
+.dialog-head h2 {
+  font-size: var(--text-h3);
+}
+
+.dialog-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--btn-height-sm);
+  height: var(--btn-height-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 1.125rem;
+}
+
+.dialog-close:hover {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.dialog-body {
+  max-height: calc(85vh - 73px);
+  padding: var(--space-6);
+  overflow-y: auto;
+}
+
+.dialog-body h3 {
+  margin: var(--space-6) 0 var(--space-2);
+  font-size: 1.0625rem;
+}
+
+.dialog-body h3:first-child {
+  margin-top: 0;
+}
+
+.dialog-body p {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 479px) {
+  .toast {
+    left: var(--space-4);
+    right: var(--space-4);
+    transform: translateY(200%);
+    max-width: none;
+  }
+
+  .toast.show {
+    transform: translateY(0);
+  }
 }

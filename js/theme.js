@@ -15,12 +15,15 @@ export const theme = (() => {
   const resolve = (preference) => {
     if (preference === 'dark') return 'dark';
     if (preference === 'light') return 'light';
+    if (preference === 'high-contrast') return 'high-contrast';
     return systemPrefersDark() ? 'dark' : 'light';
   };
 
   const setMetaTheme = (resolved) => {
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', resolved === 'dark' ? '#0f172a' : '#ffffff');
+    if (!meta) return;
+    const color = resolved === 'dark' ? '#0b0f15' : resolved === 'high-contrast' ? '#000000' : '#1d4ed8';
+    meta.setAttribute('content', color);
   };
 
   const apply = () => {

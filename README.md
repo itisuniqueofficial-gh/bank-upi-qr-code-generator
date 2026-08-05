@@ -31,20 +31,22 @@
 
 🌐 **https://upiqr.example.com**
 
-> The live site is deployed to **Cloudflare Pages** from the `main` branch.
-> Replace the placeholder with your production URL after deployment.
+> The live site is hosted on **Cloudflare Pages**. Replace the placeholder
+> with your production URL after deployment. For step-by-step deployment
+> instructions (Wrangler CLI, dashboard, or Git integration), see
+> [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## 🧰 Tech stack
 
-| Area      | Choice                                         |
-| --------- | ---------------------------------------------- |
-| Language  | Vanilla JavaScript (ES modules)                |
-| Markup    | Semantic HTML5                                 |
-| Styling   | Modern CSS with custom properties              |
-| QR engine | Self-contained QR generation (no external CDN) |
-| Backend   | None — fully client-side                       |
-| Hosting   | Cloudflare Pages (static)                      |
-| CI/CD     | GitHub Actions (lint + deploy)                 |
+| Area      | Choice                                           |
+| --------- | ------------------------------------------------ |
+| Language  | Vanilla JavaScript (ES modules)                  |
+| Markup    | Semantic HTML5                                   |
+| Styling   | Modern CSS with custom properties                |
+| QR engine | Self-contained QR generation (no external CDN)   |
+| Backend   | None — fully client-side                         |
+| Hosting   | Cloudflare Pages (static)                        |
+| CI/CD     | GitHub Actions (lint) · manual Cloudflare deploy |
 
 ## 📂 Project structure
 

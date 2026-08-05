@@ -1,4 +1,4 @@
-/* UPI QR Code Generator — entry stylesheet: animations, print */
+/* UPI QR Code Generator — entry stylesheet: keyframes and print */
 
 @keyframes fade-in {
   from {
@@ -13,8 +13,8 @@
 
 @keyframes qr-pop {
   0% {
-    transform: scale(0.96);
-    opacity: 0.5;
+    transform: scale(0.97);
+    opacity: 0.4;
   }
   100% {
     transform: scale(1);
@@ -22,13 +22,27 @@
   }
 }
 
-.hero,
-.main-layout,
-.site-footer {
-  animation: fade-in 0.25s ease-out;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* ---------- print stylesheet ---------- */
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.hero,
+.app-shell,
+.info-section,
+.site-footer {
+  animation: fade-in var(--t-med) ease-out;
+}
+
+/* ---------- print ---------- */
+
 @media print {
   body {
     background: #ffffff;
@@ -36,7 +50,6 @@
   }
 
   .site-header,
-  .breadcrumb,
   .hero .lead,
   .field-actions,
   .preview-controls,
@@ -53,16 +66,12 @@
     display: none !important;
   }
 
-  .site-header .wrap {
-    justify-content: flex-start;
-  }
-
-  .wrap {
+  .container {
     max-width: 100%;
     padding: 0;
   }
 
-  .main-layout {
+  .app-shell {
     display: block;
     padding: 0;
   }
@@ -80,11 +89,17 @@
     page-break-inside: avoid;
   }
 
+  .preview-wrap {
+    min-height: 0;
+    padding: 0;
+    border: none;
+    background: #ffffff;
+  }
+
   .preview-canvas {
     width: 96mm;
-    cursor: default;
-    border: none;
     padding: 0;
+    cursor: default;
   }
 
   #print-summary {
@@ -93,7 +108,7 @@
 
   .preview-status {
     text-align: left;
-    margin-top: var(--space-1);
+    margin-top: var(--space-2);
   }
 
   .version-info,

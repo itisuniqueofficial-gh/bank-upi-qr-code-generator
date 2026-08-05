@@ -10,6 +10,7 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-height) + var(--space-4));
 }
 
 body {
@@ -20,8 +21,8 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: var(--text-base);
+  line-height: var(--lh-base);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -30,17 +31,31 @@ h1,
 h2,
 h3,
 h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 700;
+  line-height: var(--lh-tight);
+}
+
 p,
 figure,
-ul,
-ol,
+blockquote,
 dl,
 dd {
   margin: 0;
 }
 
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 img,
-svg {
+svg,
+video {
   display: block;
   max-width: 100%;
 }
@@ -57,17 +72,31 @@ a:hover {
 button {
   font: inherit;
   cursor: pointer;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 input,
 select,
 textarea {
   font: inherit;
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 :focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
+}
+
+::selection {
+  background: var(--primary-soft);
+  color: var(--ink);
 }
 
 @media (prefers-reduced-motion: reduce) {

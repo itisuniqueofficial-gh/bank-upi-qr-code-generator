@@ -1,100 +1,153 @@
-/* UPI QR Code Generator — form controls */
-
-.form-stack {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
+/* UPI QR Code Generator — form controls and buttons */
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+}
+
+.field:last-child {
+  margin-bottom: 0;
 }
 
 .field-label {
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
   font-size: var(--text-sm);
+  font-weight: 600;
   color: var(--ink-soft);
 }
 
-.field-hint {
-  font-size: var(--text-sm);
-  color: var(--muted);
+.field-required {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.field-control {
+  position: relative;
+}
+
+.field-check {
+  position: absolute;
+  top: 50%;
+  right: var(--space-4);
+  transform: translateY(-50%);
+  display: none;
+  color: var(--success);
+  font-size: 1rem;
 }
 
 .field-input {
   width: 100%;
-  padding: 10px 12px;
+  height: var(--input-height);
+  padding: 0 var(--space-4);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--card);
+  background: var(--surface);
   color: var(--ink);
+  font-size: var(--text-base);
+  transition:
+    border-color var(--t-fast),
+    box-shadow var(--t-fast),
+    background-color var(--t-fast);
+}
+
+.field-input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.field-input:hover {
+  border-color: var(--muted);
 }
 
 .field-input:focus {
+  outline: none;
   border-color: var(--focus);
+  box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
 .field-input[aria-invalid='true'] {
   border-color: var(--danger);
 }
 
+.field-input[aria-invalid='true']:focus {
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.field.is-valid .field-input {
+  border-color: var(--success);
+  padding-right: var(--space-9);
+}
+
+.field.is-valid .field-check {
+  display: block;
+}
+
+.field-hint {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+
 .field-error {
   display: none;
   font-size: var(--text-sm);
+  font-weight: 500;
   color: var(--danger);
 }
 
 .field-error.show {
-  display: block;
-}
-
-.field-error .fa-solid {
-  margin-right: 4px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .field-grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-2);
+  gap: var(--space-6);
 }
 
-.field-grid-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: var(--space-2);
-}
-
-@media (max-width: 480px) {
-  .field-grid-2,
-  .field-grid-3 {
-    grid-template-columns: 1fr;
-  }
+.field-grid-2 .field {
+  margin-bottom: 0;
 }
 
 .field-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  padding-top: var(--space-1);
+  gap: var(--space-3);
+  margin-top: var(--space-7);
 }
+
+.field-actions .btn {
+  flex: 1 1 auto;
+}
+
+/* ---------- buttons ---------- */
 
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
+  gap: var(--space-2);
+  height: var(--btn-height);
+  padding: 0 var(--space-5);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius);
-  background: var(--card);
+  background: var(--surface);
   color: var(--ink);
+  font-size: var(--text-sm);
   font-weight: 600;
+  white-space: nowrap;
   transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease;
+    background-color var(--t-fast),
+    border-color var(--t-fast),
+    color var(--t-fast),
+    opacity var(--t-fast);
+}
+
+.btn > i {
+  font-size: 0.9375rem;
+  flex-shrink: 0;
 }
 
 .btn:hover {
@@ -102,9 +155,19 @@
   text-decoration: none;
 }
 
+.btn:active {
+  background: var(--surface-3);
+}
+
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .btn-primary {
@@ -118,11 +181,45 @@
   border-color: var(--primary-hover);
 }
 
-.btn-secondary {
-  background: var(--bg);
+.btn-primary:active {
+  background: var(--primary-active);
+}
+
+.btn-primary:disabled:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-ink);
+}
+
+.btn-outline {
+  background: transparent;
+}
+
+.btn-outline:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-success {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--success-ink);
+}
+
+.btn-success:hover {
+  background: var(--success-hover);
+  border-color: var(--success-hover);
+}
+
+.btn-success:disabled:hover {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--success-ink);
 }
 
 .btn-danger {
+  background: transparent;
   border-color: var(--danger);
   color: var(--danger);
 }
@@ -130,13 +227,71 @@
 .btn-danger:hover {
   background: var(--danger);
   border-color: var(--danger);
-  color: #ffffff;
+  color: var(--danger-ink);
 }
 
-.btn-lg {
-  flex: 1 1 100%;
+.btn-danger:disabled:hover {
+  background: transparent;
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
-.btn[hidden] {
+.btn-sm {
+  height: var(--btn-height-sm);
+  padding: 0 var(--space-4);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* loading state */
+
+.btn-spinner {
   display: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: spin 0.7s linear infinite;
+}
+
+.btn.is-loading {
+  pointer-events: none;
+}
+
+.btn.is-loading .btn-spinner {
+  display: inline-block;
+}
+
+.btn.is-loading .btn-icon-static {
+  display: none;
+}
+
+.btn.is-loading .btn-label {
+  opacity: 0.85;
+}
+
+@media (max-width: 479px) {
+  .field-grid-2 {
+    grid-template-columns: 1fr;
+  }
+
+  .field-grid-2 .field {
+    margin-bottom: var(--space-6);
+  }
+
+  .field-grid-2 .field:last-child {
+    margin-bottom: 0;
+  }
+
+  .field-actions {
+    flex-direction: column;
+  }
+
+  .field-actions .btn {
+    width: 100%;
+  }
 }
