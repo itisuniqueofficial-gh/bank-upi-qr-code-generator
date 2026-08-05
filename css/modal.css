@@ -1,0 +1,219 @@
+/* UPI QR Code Generator — modal system (overlay + centered dialog) */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: var(--modal-backdrop);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    visibility 0s linear 180ms;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 180ms ease;
+}
+
+.modal-overlay.closing {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease,
+    visibility 0s linear 180ms;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: min(900px, 100%);
+  max-height: min(90vh, calc(100vh - var(--space-6)));
+  max-height: min(90dvh, calc(100dvh - var(--space-6)));
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  outline: none;
+  transform: translateY(12px) scale(0.98);
+  transition: transform 180ms ease;
+}
+
+.modal-overlay.open .modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: var(--btn-h-sm);
+  height: var(--btn-h-sm);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--ink);
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    background var(--t-fast),
+    border-color var(--t-fast),
+    color var(--t-fast);
+}
+
+.modal-close:hover {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.modal-close:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.modal-body {
+  padding: var(--space-5);
+  overflow-y: auto;
+  min-height: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.modal :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Preview modal                                                       */
+/* ------------------------------------------------------------------ */
+
+.modal--preview .modal-body {
+  display: flex;
+  justify-content: center;
+}
+
+.modal--preview .modal-body .qr-card {
+  margin-inline: 0;
+  width: min(100%, 460px);
+}
+
+.modal--preview .card-qr-canvas {
+  max-width: 320px;
+}
+
+.modal--preview .card-qr-stage {
+  padding: var(--space-5);
+}
+
+/* ------------------------------------------------------------------ */
+/* About modal content                                                 */
+/* ------------------------------------------------------------------ */
+
+.about-content h3 {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: var(--space-5) 0 var(--space-2);
+}
+
+.about-content h3:first-child {
+  margin-top: 0;
+}
+
+.about-content p {
+  font-size: var(--fs-300);
+  color: var(--ink-soft);
+}
+
+.about-content code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: var(--surface-3);
+  padding: 1px var(--space-1);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.modal-actions .btn {
+  flex: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Small screens: fullscreen sheet                                     */
+/* ------------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    width: 100%;
+    max-height: min(92vh, calc(100vh - var(--space-2)));
+    max-height: min(92dvh, calc(100dvh - var(--space-2)));
+    border: 0;
+    border-top: 1px solid var(--border);
+    transform: translateY(24px);
+  }
+
+  .modal-overlay.open .modal {
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion                                                      */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay,
+  .modal-overlay.open,
+  .modal-overlay.closing,
+  .modal {
+    transition: none;
+  }
+
+  .modal {
+    transform: none;
+  }
+}

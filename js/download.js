@@ -50,13 +50,24 @@ const renderSVGString = (qr, opts = {}) => {
   ].join('');
 };
 
+const downloadCanvas = (canvas, filename, type = 'image/png') => {
+  return new Promise((resolve) => {
+    canvas.toBlob(
+      (blob) => {
+        if (blob) utils.downloadFile(URL.createObjectURL(blob), filename);
+        resolve(Boolean(blob));
+      },
+      type,
+      0.92
+    );
+  });
+};
+
 const downloadPNG = async (qr, opts = {}) => {
   const { size = 512, filename = 'upi-qr.png', dark, light } = opts;
   const canvas = document.createElement('canvas');
   renderCanvas(canvas, qr, { size, dark, light });
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-  if (blob) utils.downloadFile(URL.createObjectURL(blob), filename);
-  return Boolean(blob);
+  return downloadCanvas(canvas, filename, 'image/png');
 };
 
 const downloadSVG = (qr, opts = {}) => {
@@ -66,4 +77,11 @@ const downloadSVG = (qr, opts = {}) => {
   utils.downloadFile(URL.createObjectURL(blob), filename);
 };
 
-export const render = { renderCanvas, renderSVGString, downloadPNG, downloadSVG, QUIET_ZONE };
+export const render = {
+  renderCanvas,
+  renderSVGString,
+  downloadPNG,
+  downloadSVG,
+  downloadCanvas,
+  QUIET_ZONE,
+};

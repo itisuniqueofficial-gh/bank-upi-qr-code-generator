@@ -1,26 +1,8 @@
-/* UPI QR Code Generator — entry stylesheet: keyframes and print */
+/* UPI QR Code Generator — animations & print */
 
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes qr-pop {
-  0% {
-    transform: scale(0.97);
-    opacity: 0.4;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
+/* ------------------------------------------------------------------ */
+/* Animations                                                          */
+/* ------------------------------------------------------------------ */
 
 @keyframes spin {
   to {
@@ -28,95 +10,80 @@
   }
 }
 
-@keyframes shimmer {
-  to {
-    transform: translateX(100%);
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
   }
 }
 
-.hero,
-.app-shell,
-.info-section,
-.site-footer {
-  animation: fade-in var(--t-med) ease-out;
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ---------- print ---------- */
+@keyframes qr-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.card-qr-stage.animate {
+  animation: qr-pop 200ms ease;
+}
+
+/* ------------------------------------------------------------------ */
+/* Print                                                               */
+/* ------------------------------------------------------------------ */
+
+.print-card {
+  display: none;
+}
 
 @media print {
+  @page {
+    margin: 12mm;
+  }
+
   body {
     background: #ffffff;
     color: #000000;
   }
 
   .site-header,
-  .hero .lead,
-  .field-actions,
-  .preview-controls,
-  .preview-actions,
+  .sidebar,
+  .form-panel,
+  .preview-options,
+  .action-groups,
+  .raw-block,
   .shortcuts-help,
   .offline-notice,
-  .fullscreen-overlay,
-  .skip-link,
-  .toast,
+  .info-section,
   .site-footer,
-  #share-btn,
-  #open-upi,
-  #fullscreen-btn {
+  .skip-link,
+  .toast {
     display: none !important;
   }
 
-  .container {
-    max-width: 100%;
+  .main {
     padding: 0;
   }
 
-  .app-shell {
+  .print-card {
     display: block;
-    padding: 0;
-  }
-
-  .card {
-    border: none;
-    padding: 0;
-  }
-
-  .form-card {
-    display: none;
-  }
-
-  .preview-card {
-    page-break-inside: avoid;
-  }
-
-  .preview-wrap {
-    min-height: 0;
-    padding: 0;
-    border: none;
-    background: #ffffff;
-  }
-
-  .preview-canvas {
-    width: 96mm;
-    padding: 0;
-    cursor: default;
-  }
-
-  #print-summary {
-    display: block !important;
-  }
-
-  .preview-status {
-    text-align: left;
-    margin-top: var(--space-2);
-  }
-
-  .version-info,
-  .raw-block {
-    display: none !important;
-  }
-
-  a[href]::after {
-    content: '';
   }
 }

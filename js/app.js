@@ -1,3 +1,5 @@
+/* UPI QR Code Generator — application bootstrap & state */
+
 import { createQR } from './qr.js';
 import { validator } from './validator.js';
 import { theme } from './theme.js';
@@ -7,9 +9,12 @@ import { render } from './download.js';
 import { generator } from './generator.js';
 import { config } from './config.js';
 import { storage } from './storage.js';
+import { card } from './card.js';
+import { brands } from './brands.js';
+import { pdf } from './pdf.js';
+import { modal } from './modal.js';
 
 const APP = config.APP;
-
 const LEVEL = config.ERROR_CORRECTION;
 const FIELDS = ['name', 'account', 'confirm', 'ifsc', 'amount', 'note'];
 const THEME_OPTIONS = ['system', 'light', 'dark', 'high-contrast'];
@@ -18,32 +23,28 @@ const $ = (id) => document.getElementById(id);
 
 export const initApp = () => {
   const form = $('upi-form');
-  const previewCanvas = $('preview-canvas');
-  const previewWrap = $('preview-wrap');
-  const previewStatus = $('preview-status');
+  const cardEl = $('qr-card');
   const sizeSelect = $('size-select');
   const versionInfo = $('version-info');
   const rawUri = $('raw-uri');
-  const copyUriBtn = $('copy-uri');
-  const copyJsonBtn = $('copy-json');
-  const copyRawBtn = $('copy-raw');
-  const copyTxtBtn = $('copy-txt');
-  const downloadPngBtn = $('download-png');
-  const downloadSvgBtn = $('download-svg');
-  const printBtn = $('print-qr');
-  const shareBtn = $('share-btn');
-  const fullscreenBtn = $('fullscreen-btn');
-  const openUpiBtn = $('open-upi');
-  const regenerateBtn = $('regenerate-btn');
-  const generateBtn = $('generate-btn');
-  const resetBtn = $('reset-btn');
-  const themeSelect = $('theme-select');
-  const toast = $('toast');
-  const offlineNotice = $('offline-notice');
-  const overlay = $('fullscreen-overlay');
-  const fullscreenCanvas = $('fullscreen-canvas');
-  const fullscreenClose = $('fullscreen-close');
+  const printCard = $('print-card');
   const shortcutsHelp = $('shortcuts-help');
+  const offlineNotice = $('offline-notice');
+  const themeSelect = $('theme-select');
+
+  const actionBtns = {
+    png: $('download-png'),
+    svg: $('download-svg'),
+    pdf: $('download-pdf'),
+    copyUri: $('copy-uri'),
+    copyAccount: $('copy-account'),
+    copyJson: $('copy-json'),
+    copyQr: $('copy-qr'),
+    share: $('share-btn'),
+    openUpi: $('open-upi'),
+    print: $('print-btn'),
+    regenerate: $('regenerate-btn'),
+  };
 
   const getInput = (name) => $(`field-${name}`);
   const getErrorEl = (name) => $(`field-${name}-error`);
@@ -51,6 +52,7 @@ export const initApp = () => {
   const state = {
     qr: null,
     payload: '',
+    data: null,
     valid: false,
   };
 
@@ -62,6 +64,7 @@ export const initApp = () => {
   };
 
   const showToast = (message, tone = 'info') => {
+    const toast = $('toast');
     const icon = TOAST_ICONS[tone] || TOAST_ICONS.info;
     toast.querySelector('.toast-text').textContent = message;
     toast.querySelector('.toast-icon').className = `fa-solid ${icon} toast-icon`;
@@ -71,6 +74,10 @@ export const initApp = () => {
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2400);
   };
+
+  /* ---------------------------------------------------------------- */
+  /* Form state                                                        */
+  /* ---------------------------------------------------------------- */
 
   const getFormData = () => {
     const data = {};
@@ -104,12 +111,18 @@ export const initApp = () => {
     const field = input.closest('.field');
     if (message) {
       input.setAttribute('aria-invalid', 'true');
-      if (field) field.classList.remove('is-valid');
+      if (field) {
+        field.classList.remove('is-valid');
+        field.classList.add('is-invalid');
+      }
       errorEl.textContent = message;
       errorEl.classList.add('show');
     } else {
       input.removeAttribute('aria-invalid');
-      if (field) field.classList.toggle('is-valid', input.value.trim() !== '');
+      if (field) {
+        field.classList.remove('is-invalid');
+        field.classList.toggle('is-valid', input.value.trim() !== '');
+      }
       errorEl.textContent = '';
       errorEl.classList.remove('show');
     }
@@ -125,22 +138,11 @@ export const initApp = () => {
     return result.ok;
   };
 
-  const setPreviewStatus = (message) => {
-    previewWrap.classList.toggle('empty', Boolean(message));
-    previewStatus.textContent = message || '';
-  };
+  /* ---------------------------------------------------------------- */
+  /* Card rendering (single live preview)                              */
+  /* ---------------------------------------------------------------- */
 
-  const getSize = () => Number(sizeSelect.value) || config.DEFAULT_SIZE;
-
-  const fillPrintSummary = () => {
-    const data = getFormData();
-    const name = $('print-name');
-    const account = $('print-account');
-    const amount = $('print-amount');
-    if (name) name.textContent = data.name.trim();
-    if (account) account.textContent = `${data.account.trim()} · ${data.ifsc.trim()}`;
-    if (amount) amount.textContent = data.amount.trim() ? `₹${data.amount.trim()}` : 'Any amount';
-  };
+  const getExportSize = () => Number(sizeSelect.value) || config.DEFAULT_SIZE;
 
   const showVersionInfo = () => {
     if (!state.qr) {
@@ -148,18 +150,39 @@ export const initApp = () => {
       return;
     }
     const n = state.qr.getModuleCount();
-    versionInfo.textContent = `Version ${state.qr.getVersion()} · ${n}×${n} modules · EC ${state.qr.getLevel()}`;
+    versionInfo.textContent = `Version ${state.qr.getVersion()} · ${n}×${n} modules · EC ${state.qr.getLevel()} · ${getExportSize()}px`;
   };
 
-  const renderPreview = () => {
+  const cloneCard = () => {
+    const clone = cardEl.cloneNode(true);
+    const canvas = clone.querySelector('#card-canvas');
+    if (canvas && state.qr) {
+      render.renderCanvas(canvas, state.qr, { size: card.CARD_QR_SIZE, dark: '#000000', light: '#ffffff' });
+    }
+    return clone;
+  };
+
+  const syncPrintCard = () => {
+    if (printCard) {
+      printCard.replaceChildren(cloneCard());
+    }
+  };
+
+  const clearPrintClone = () => {
+    if (printCard) printCard.replaceChildren();
+  };
+
+  const renderCard = () => {
     const data = getFormData();
     const result = validator.validateAll(data);
     state.valid = result.ok;
+    state.data = data;
     if (!result.ok) {
       state.qr = null;
       state.payload = '';
-      fillPrintSummary();
-      setPreviewStatus('Fill in the highlighted fields to preview your QR code.');
+      card.resetCard();
+      clearPrintClone();
+      closePreview();
       rawUri.value = '';
       showVersionInfo();
       syncActions();
@@ -170,47 +193,25 @@ export const initApp = () => {
       const qr = createQR(payload, { level: LEVEL });
       state.qr = qr;
       state.payload = payload;
-      fillPrintSummary();
-      render.renderCanvas(previewCanvas, qr, {
-        size: getSize(),
-        dark: '#000000',
-        light: '#ffffff',
-      });
-      setPreviewStatus('');
+      card.updateCard({ qr, data });
+      syncPrintCard();
+      refreshPreview();
       rawUri.value = payload;
       showVersionInfo();
       syncActions();
     } catch (_e) {
       state.qr = null;
       state.payload = '';
-      fillPrintSummary();
-      setPreviewStatus('This input is too large to encode as a QR code.');
+      card.resetCard();
+      clearPrintClone();
+      closePreview();
       rawUri.value = '';
       showVersionInfo();
       syncActions();
     }
   };
 
-  const renderPreviewDebounced = utils.debounce(renderPreview, 150);
-
-  const syncActions = () => {
-    const on = state.valid && state.qr;
-    [
-      copyUriBtn,
-      copyJsonBtn,
-      copyRawBtn,
-      copyTxtBtn,
-      downloadPngBtn,
-      downloadSvgBtn,
-      printBtn,
-      shareBtn,
-      fullscreenBtn,
-      openUpiBtn,
-      regenerateBtn,
-    ].forEach((btn) => btn.toggleAttribute('disabled', !on));
-  };
-
-  const getFilename = (ext) => `upi-qr-${getInput('account').value || 'code'}.${ext}`;
+  const renderCardDebounced = utils.debounce(renderCard, 150);
 
   const handleInput = (name) => {
     const input = getInput(name);
@@ -230,22 +231,29 @@ export const initApp = () => {
     }
     validateField(name);
     if (name === 'account' && getInput('confirm').value !== '') validateField('confirm');
-    renderPreviewDebounced();
+    renderCardDebounced();
     persistForm();
   };
 
   const animateGenerate = () => {
-    previewWrap.classList.remove('animate');
-    void previewWrap.offsetWidth;
-    previewWrap.classList.add('animate');
+    const stage = cardEl && cardEl.querySelector('.card-qr-stage');
+    if (!stage) return;
+    stage.classList.remove('animate');
+    void stage.offsetWidth;
+    stage.classList.add('animate');
   };
 
   const setGenerateLoading = (loading) => {
-    generateBtn.classList.toggle('is-loading', loading);
-    generateBtn.setAttribute('aria-busy', String(loading));
-    generateBtn.toggleAttribute('disabled', loading);
-    generateBtn.querySelector('.btn-label').textContent = loading ? 'Generating…' : 'Generate QR code';
+    const btn = $('generate-btn');
+    btn.classList.toggle('is-loading', loading);
+    btn.setAttribute('aria-busy', String(loading));
+    btn.toggleAttribute('disabled', loading);
+    btn.querySelector('.btn-label').textContent = loading ? 'Generating card…' : 'Generate payment card';
   };
+
+  /* ---------------------------------------------------------------- */
+  /* Generate / reset / regenerate                                     */
+  /* ---------------------------------------------------------------- */
 
   const onGenerate = async () => {
     const data = getFormData();
@@ -262,10 +270,11 @@ export const initApp = () => {
     }
     setGenerateLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 350));
-    renderPreview();
+    renderCard();
     animateGenerate();
     setGenerateLoading(false);
-    previewWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    refreshPreview();
+    cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
   const onReset = () => {
@@ -274,19 +283,76 @@ export const initApp = () => {
     for (const name of FIELDS) setFieldError(name, '');
     state.qr = null;
     state.payload = '';
+    state.data = null;
     state.valid = false;
-    setPreviewStatus('Fill in the highlighted fields to preview your QR code.');
+    card.resetCard();
+    clearPrintClone();
+    closePreview();
     rawUri.value = '';
-    versionInfo.textContent = '';
+    showVersionInfo();
     syncActions();
     getInput('name').focus();
+    showToast('Card cleared', 'info');
   };
 
   const onRegenerate = () => {
     if (!state.valid || !state.qr) return;
-    renderPreview();
+    renderCard();
     animateGenerate();
-    showToast('QR code regenerated', 'success');
+    refreshPreview();
+    showToast('Payment card regenerated', 'success');
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Export actions                                                    */
+  /* ---------------------------------------------------------------- */
+
+  const syncActions = () => {
+    const on = state.valid && state.qr;
+    for (const btn of Object.values(actionBtns)) {
+      if (btn) btn.toggleAttribute('disabled', !on);
+    }
+  };
+
+  const getFilename = (ext) => `upi-card-${(state.data && state.data.account) || 'code'}.${ext}`;
+
+  const paintCard = async () => {
+    if (!state.valid || !state.qr) throw new Error('invalid state');
+    return card.paintCard({ qr: state.qr, data: state.data, size: getExportSize() });
+  };
+
+  const onDownloadPng = async () => {
+    if (!state.valid) return;
+    try {
+      const canvas = await paintCard();
+      const ok = await render.downloadCanvas(canvas, getFilename('png'), 'image/png');
+      showToast(ok ? 'PNG downloaded' : 'Download failed', ok ? 'success' : 'error');
+    } catch (_e) {
+      showToast('Download failed', 'error');
+    }
+  };
+
+  const onDownloadSvg = async () => {
+    if (!state.valid) return;
+    try {
+      const canvas = await paintCard();
+      const { blob, filename } = await card.cardSVG(canvas, getFilename('svg'));
+      utils.downloadFile(URL.createObjectURL(blob), filename);
+      showToast('SVG downloaded', 'success');
+    } catch (_e) {
+      showToast('Download failed', 'error');
+    }
+  };
+
+  const onDownloadPdf = async () => {
+    if (!state.valid) return;
+    try {
+      const canvas = await paintCard();
+      await pdf.downloadPDF(canvas, getFilename('pdf'));
+      showToast('PDF downloaded', 'success');
+    } catch (_e) {
+      showToast('Download failed', 'error');
+    }
   };
 
   const onCopy = async (kind) => {
@@ -296,27 +362,36 @@ export const initApp = () => {
     if (kind === 'uri') {
       text = state.payload;
       label = 'UPI URI copied';
-    } else if (kind === 'raw') {
-      text = state.payload;
-      label = 'Raw URI copied';
-    } else if (kind === 'txt') {
-      text = generator.buildSummary(getFormData());
-      label = 'Summary copied';
+    } else if (kind === 'account') {
+      const data = state.data;
+      text = [
+        'UPI Payment Card',
+        '',
+        `Name: ${data.name.trim()}`,
+        `Account: ${data.account.trim()}`,
+        `IFSC: ${data.ifsc.trim()}`,
+        `UPI: ${card.buildVpa(data)}`,
+        `Amount: ${data.amount.trim() ? `₹${data.amount.trim()}` : 'Any amount'}`,
+        `Note: ${data.note.trim() || '—'}`,
+      ].join('\n');
+      label = 'Account details copied';
     } else {
-      const data = getFormData();
+      const data = state.data;
       text = JSON.stringify(
         {
           app: APP.name,
+          brand: config.BRAND.name,
           upi: state.payload,
+          vpa: card.buildVpa(data),
+          name: data.name,
           account: data.account,
           ifsc: data.ifsc,
-          name: data.name,
           amount: data.amount,
           note: data.note,
           level: state.qr.getLevel(),
           version: state.qr.getVersion(),
           moduleCount: state.qr.getModuleCount(),
-          size: getSize(),
+          size: getExportSize(),
           createdAt: new Date().toISOString(),
         },
         null,
@@ -328,29 +403,27 @@ export const initApp = () => {
     showToast(ok ? label : 'Copy failed — select the text manually.', ok ? 'success' : 'error');
   };
 
-  const onDownloadPng = async () => {
-    if (!state.qr) return;
-    const ok = await render.downloadPNG(state.qr, {
-      size: getSize(),
-      filename: getFilename('png'),
-      dark: '#000000',
-      light: '#ffffff',
-    });
-    showToast(ok ? 'PNG downloaded' : 'Download failed', ok ? 'success' : 'error');
-  };
-
-  const onDownloadSvg = () => {
-    if (!state.qr) return;
-    render.downloadSVG(state.qr, {
-      filename: getFilename('svg'),
-      dark: '#000000',
-      light: '#ffffff',
-    });
-    showToast('SVG downloaded', 'success');
+  const onCopyQr = async () => {
+    if (!state.valid) return;
+    try {
+      const canvas = await paintCard();
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      if (blob && navigator.clipboard && window.isSecureContext && typeof ClipboardItem !== 'undefined') {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        showToast('QR image copied', 'success');
+      } else if (blob) {
+        utils.downloadFile(URL.createObjectURL(blob), getFilename('png'));
+        showToast('Copy unsupported — PNG downloaded', 'success');
+      } else {
+        showToast('Failed to copy QR image', 'error');
+      }
+    } catch (_e) {
+      showToast('Failed to copy QR image', 'error');
+    }
   };
 
   const onPrint = () => {
-    if (!state.qr) return;
+    if (!state.valid) return;
     window.print();
   };
 
@@ -367,7 +440,7 @@ export const initApp = () => {
 
   const onShare = async () => {
     if (!state.valid || !state.qr) return;
-    const data = getFormData();
+    const data = state.data;
     const text = `${data.name.trim()}\nUPI: ${state.payload}`;
     if (navigator.share) {
       try {
@@ -382,76 +455,114 @@ export const initApp = () => {
     showToast(ok ? 'Sharing unavailable — UPI URI copied instead' : 'Sharing unavailable', ok ? 'success' : 'error');
   };
 
-  const openFullscreen = () => {
-    if (!state.qr) return;
-    render.renderCanvas(fullscreenCanvas, state.qr, {
-      size: 1024,
-      dark: '#000000',
-      light: '#ffffff',
+  /* ---------------------------------------------------------------- */
+  /* Live preview modal                                                */
+  /* ---------------------------------------------------------------- */
+
+  const buildPreviewContent = () => {
+    if (!state.valid || !state.qr) return null;
+    return cloneCard();
+  };
+
+  const openPreview = () => {
+    if (!state.valid || !state.qr) return;
+    modal.openModal('preview', {
+      title: 'UPI payment card',
+      wide: true,
+      content: buildPreviewContent(),
+      actions: [
+        { label: 'Print', icon: 'fa-print', variant: 'outline', onClick: onPrint, closeOnClick: false },
+        { label: 'Close', icon: 'fa-xmark', variant: 'primary', closeOnClick: true },
+      ],
     });
-    overlay.hidden = false;
-    document.body.classList.add('no-scroll');
-    fullscreenClose.focus();
   };
 
-  const closeFullscreen = () => {
-    if (overlay.hidden) return;
-    overlay.hidden = true;
-    document.body.classList.remove('no-scroll');
-    fullscreenBtn.focus();
+  const closePreview = () => {
+    modal.closeModal('preview');
   };
 
-  const toggleShortcuts = () => {
-    shortcutsHelp.open = !shortcutsHelp.open;
+  const refreshPreview = () => {
+    if (!modal.isModalOpen('preview')) return;
+    const content = buildPreviewContent();
+    if (content) modal.updateContent('preview', content);
   };
 
-  const closeNav = () => {
-    const nav = $('site-nav');
+  /* ---------------------------------------------------------------- */
+  /* Sidebar quick actions                                             */
+  /* ---------------------------------------------------------------- */
+
+  const initSidebar = () => {
+    const scrollTo = (el) => el && el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const map = {
+      generate: () => {
+        const first = getInput('name');
+        scrollTo(form);
+        first.focus({ preventScroll: true });
+      },
+      downloads: () => scrollTo($('action-groups')),
+      settings: () => {
+        scrollTo($('preview-title'));
+        sizeSelect.focus({ preventScroll: true });
+      },
+      help: () => {
+        shortcutsHelp.open = !shortcutsHelp.open;
+      },
+      about: () => openAbout(),
+    };
+    document.querySelectorAll('.side-link[data-action]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const fn = map[btn.dataset.action];
+        if (fn) fn();
+      });
+    });
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* About modal                                                       */
+  /* ---------------------------------------------------------------- */
+
+  const ABOUT_TITLE = 'About UPI QR Code Generator';
+
+  const openAbout = () => {
+    const template = $('about-modal-template');
+    const content = template ? template.content.cloneNode(true) : null;
+    modal.openModal('about', { title: ABOUT_TITLE, content });
+  };
+
+  const initAbout = () => {
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('[data-about-open]')) openAbout();
+    });
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Navigation                                                        */
+  /* ---------------------------------------------------------------- */
+
+  const initNav = () => {
     const toggle = $('nav-toggle');
-    if (!nav || !nav.classList.contains('is-open')) return;
-    nav.classList.remove('is-open');
-    if (toggle) toggle.setAttribute('aria-expanded', 'false');
+    const mobileNav = $('site-nav-mobile');
+    const closeNav = () => {
+      mobileNav.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    toggle.addEventListener('click', () => {
+      const open = !mobileNav.classList.contains('is-open');
+      mobileNav.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
+    mobileNav.addEventListener('click', (event) => {
+      if (event.target.closest('a, button')) closeNav();
+    });
+    const header = document.querySelector('.site-header');
+    const onScroll = () => header.setAttribute('data-scrolled', String(window.scrollY > 8));
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
   };
 
-  const isTyping = (el) => {
-    if (!(el instanceof Element)) return false;
-    const tag = el.tagName;
-    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
-  };
-
-  const onKeydown = (event) => {
-    if (event.ctrlKey || event.metaKey) {
-      const key = event.key.toLowerCase();
-      if (key === 'enter') {
-        event.preventDefault();
-        onGenerate();
-      } else if (key === 'd') {
-        event.preventDefault();
-        onDownloadPng();
-      } else if (key === 's') {
-        event.preventDefault();
-        onDownloadSvg();
-      } else if (key === 'p') {
-        event.preventDefault();
-        onPrint();
-      }
-      return;
-    }
-    if (event.key === 'Escape') {
-      if ($('site-nav') && $('site-nav').classList.contains('is-open')) {
-        closeNav();
-        return;
-      }
-      closeFullscreen();
-      return;
-    }
-    if (isTyping(event.target)) return;
-    if (event.key === 'f' || event.key === 'F') {
-      if (state.valid && state.qr) openFullscreen();
-    } else if (event.key === '?') {
-      toggleShortcuts();
-    }
-  };
+  /* ---------------------------------------------------------------- */
+  /* Theme, connectivity, footer                                       */
+  /* ---------------------------------------------------------------- */
 
   const initTheme = () => {
     theme.init();
@@ -468,52 +579,96 @@ export const initApp = () => {
     update();
   };
 
-  const initAbout = () => {
-    const dialog = $('about-dialog');
-    if (!dialog) return;
-    const open = () => {
-      if (typeof dialog.showModal === 'function') dialog.showModal();
-      else dialog.setAttribute('open', '');
-    };
-    const close = () => {
-      if (typeof dialog.close === 'function') dialog.close();
-      else dialog.removeAttribute('open');
-    };
-    document.querySelectorAll('[data-about-open]').forEach((el) => el.addEventListener('click', open));
-    document.querySelectorAll('[data-about-close]').forEach((el) => el.addEventListener('click', close));
-    const closeBtn = $('about-close');
-    if (closeBtn) closeBtn.addEventListener('click', close);
-    dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) close();
-    });
-  };
-
-  const initNav = () => {
-    const toggle = $('nav-toggle');
-    const nav = $('site-nav');
-    if (!toggle || !nav) return;
-    toggle.addEventListener('click', () => {
-      const open = !nav.classList.contains('is-open');
-      nav.classList.toggle('is-open', open);
-      toggle.setAttribute('aria-expanded', String(open));
-    });
-    nav.addEventListener('click', (event) => {
-      if (event.target.closest('a, button')) closeNav();
-    });
-  };
-
   const initFooter = () => {
     const year = $('footer-year');
     if (year) year.textContent = new Date().getFullYear();
     const version = $('app-version');
     if (version) version.textContent = APP.version;
+    const headerVersion = $('header-version');
+    if (headerVersion) headerVersion.textContent = APP.version;
   };
+
+  /* ---------------------------------------------------------------- */
+  /* Brand marks                                                       */
+  /* ---------------------------------------------------------------- */
+
+  const initBrands = () => {
+    const logo = $('card-logo');
+    if (logo) logo.src = brands.upi;
+    const appMap = {
+      gpay: $('card-app-gpay'),
+      phonepay: $('card-app-phonepay'),
+      paytm: $('card-app-paytm'),
+      bhim: $('card-app-bhim'),
+      amazon: $('card-app-amazon'),
+    };
+    for (const b of brands.list) {
+      const el = appMap[b.key];
+      if (el) el.src = brands[b.key];
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Shortcuts                                                         */
+  /* ---------------------------------------------------------------- */
+
+  const isTyping = (el) => {
+    if (!(el instanceof Element)) return false;
+    const tag = el.tagName;
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable;
+  };
+
+  const onKeydown = (event) => {
+    /* while a modal is open the manager owns all keyboard handling */
+    if (modal.isModalOpen()) return;
+    if (event.ctrlKey || event.metaKey) {
+      const key = event.key.toLowerCase();
+      if (key === 'enter') {
+        event.preventDefault();
+        onGenerate();
+      } else if (key === 'd') {
+        event.preventDefault();
+        onDownloadPng();
+      } else if (key === 's') {
+        event.preventDefault();
+        onDownloadSvg();
+      } else if (key === 'p' && event.shiftKey) {
+        event.preventDefault();
+        onDownloadPdf();
+      }
+      return;
+    }
+    if (event.key === 'Escape') {
+      const mobileNav = $('site-nav-mobile');
+      if (mobileNav && mobileNav.classList.contains('is-open')) {
+        mobileNav.classList.remove('is-open');
+        $('nav-toggle').setAttribute('aria-expanded', 'false');
+      }
+      return;
+    }
+    if (isTyping(event.target)) return;
+    if (event.key === 'f' || event.key === 'F') {
+      openPreview();
+    } else if (event.key === 'g' || event.key === 'G') {
+      getInput('name').focus();
+    } else if (event.key === '?') {
+      shortcutsHelp.open = !shortcutsHelp.open;
+    }
+  };
+
+  /* ---------------------------------------------------------------- */
+  /* Service worker                                                    */
+  /* ---------------------------------------------------------------- */
 
   const registerServiceWorker = () => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
   };
+
+  /* ---------------------------------------------------------------- */
+  /* Bind events                                                       */
+  /* ---------------------------------------------------------------- */
 
   const bindEvents = () => {
     for (const name of FIELDS) {
@@ -527,33 +682,26 @@ export const initApp = () => {
       if (preset === config.DEFAULT_SIZE) option.selected = true;
       sizeSelect.appendChild(option);
     }
-    sizeSelect.addEventListener('change', renderPreview);
-    copyUriBtn.addEventListener('click', () => onCopy('uri'));
-    copyRawBtn.addEventListener('click', () => onCopy('raw'));
-    copyJsonBtn.addEventListener('click', () => onCopy('json'));
-    copyTxtBtn.addEventListener('click', () => onCopy('txt'));
-    downloadPngBtn.addEventListener('click', onDownloadPng);
-    downloadSvgBtn.addEventListener('click', onDownloadSvg);
-    printBtn.addEventListener('click', onPrint);
-    shareBtn.addEventListener('click', onShare);
-    fullscreenBtn.addEventListener('click', openFullscreen);
-    openUpiBtn.addEventListener('click', onOpenUpi);
-    regenerateBtn.addEventListener('click', onRegenerate);
-    generateBtn.addEventListener('click', onGenerate);
-    resetBtn.addEventListener('click', onReset);
+    sizeSelect.addEventListener('change', renderCard);
+    $('generate-btn').addEventListener('click', onGenerate);
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       onGenerate();
     });
-    overlay.addEventListener('click', (event) => {
-      if (event.target === overlay) closeFullscreen();
-    });
-    fullscreenClose.addEventListener('click', closeFullscreen);
-
-    const bindKeydown = window.jQuery
-      ? (fn) => window.jQuery(document).on('keydown', fn)
-      : (fn) => document.addEventListener('keydown', fn);
-    bindKeydown(onKeydown);
+    $('reset-btn').addEventListener('click', onReset);
+    $('actions-reset-btn').addEventListener('click', onReset);
+    actionBtns.png.addEventListener('click', onDownloadPng);
+    actionBtns.svg.addEventListener('click', onDownloadSvg);
+    actionBtns.pdf.addEventListener('click', onDownloadPdf);
+    actionBtns.copyUri.addEventListener('click', () => onCopy('uri'));
+    actionBtns.copyAccount.addEventListener('click', () => onCopy('account'));
+    actionBtns.copyJson.addEventListener('click', () => onCopy('json'));
+    actionBtns.copyQr.addEventListener('click', onCopyQr);
+    actionBtns.share.addEventListener('click', onShare);
+    actionBtns.openUpi.addEventListener('click', onOpenUpi);
+    actionBtns.print.addEventListener('click', onPrint);
+    actionBtns.regenerate.addEventListener('click', onRegenerate);
+    document.addEventListener('keydown', onKeydown);
   };
 
   bindEvents();
@@ -563,10 +711,12 @@ export const initApp = () => {
   initAbout();
   initNav();
   initFooter();
+  initBrands();
+  initSidebar();
   syncActions();
-  renderPreviewDebounced();
+  renderCardDebounced();
   registerServiceWorker();
-  getInput('name').focus();
+  document.documentElement.dataset.appReady = 'true';
 };
 
 utils.ready(() => initApp());

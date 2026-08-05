@@ -1,12 +1,12 @@
 {
   "name": "UPI Bank QR Code Generator",
   "short_name": "UPI QR",
-  "description": "Generate, download, copy, and print UPI QR codes for your bank account — 100% offline, dependency-free, and privacy-first.",
+  "description": "Generate a professional UPI payment card with a scannable QR code from your bank account — download PNG, SVG, or PDF. 100% offline and private.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f4f6f9",
-  "theme_color": "#1d4ed8",
+  "background_color": "#f4f4f0",
+  "theme_color": "#f4f4f0",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -24,9 +24,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Generate a new QR",
+      "name": "Generate a new card",
       "url": "/",
-      "description": "Start generating a new UPI QR code"
+      "description": "Start generating a new UPI payment card"
     }
   ],
   "categories": ["finance", "utilities", "productivity"],

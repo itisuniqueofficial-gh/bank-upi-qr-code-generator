@@ -22,7 +22,7 @@ export const theme = (() => {
   const setMetaTheme = (resolved) => {
     const meta = document.querySelector('meta[name="theme-color"]');
     if (!meta) return;
-    const color = resolved === 'dark' ? '#0b0f15' : resolved === 'high-contrast' ? '#000000' : '#1d4ed8';
+    const color = resolved === 'dark' ? '#0a0a0b' : resolved === 'high-contrast' ? '#000000' : '#f4f4f0';
     meta.setAttribute('content', color);
   };
 
